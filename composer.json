@@ -1,0 +1,25 @@
+{
+    "name": "ponponpay/php-sdk",
+    "description": "PonponPay Crypto Payment Gateway - Official PHP SDK",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["ponponpay", "crypto", "payment", "usdt", "usdc", "blockchain", "payment-gateway"],
+    "homepage": "https://ponponpay.com",
+    "authors": [
+        {
+            "name": "PonponPay Engineering Team",
+            "homepage": "https://ponponpay.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "PonponPay\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
