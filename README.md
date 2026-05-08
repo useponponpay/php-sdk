@@ -10,6 +10,7 @@ Accept cryptocurrency payments (USDT, USDC, etc.) on any PHP website via [Ponpon
 - 🌐 **Framework Agnostic** — Works with any PHP project (Laravel, WordPress, custom, etc.)
 - 📦 **Zero Dependencies** — Pure PHP with cURL, no external packages required
 - 🔒 **Webhook Verification** — Built-in HMAC-SHA256 signature validation with replay protection
+- 🤖 **Agent Payments** — x402 helper for API/resource payments by agents
 - 💰 **Multi-Currency** — Support USDT, USDC on Tron, Ethereum, BSC, Polygon, Solana
 
 ## Requirements
@@ -108,6 +109,32 @@ try {
 }
 ```
 
+### 6. Protect an API with x402 Agent Payments
+
+```php
+$x402 = $ponponpay->x402([
+    'resource' => [
+        'payTo' => '0xYourMerchantSettlementWallet',
+        'resource' => 'https://api.example.com/premium-data',
+        'method' => 'GET',
+        'price' => '$0.01',
+        'maxAmountRequired' => '10000',
+        'network' => 'eip155:8453',
+        'asset' => 'USDC',
+        'description' => 'Premium market data',
+    ],
+]);
+
+$result = $x402->verifyAndSettle();
+
+if (!$result['paid']) {
+    $x402->sendRequirementAndExit();
+}
+
+header('Content-Type: application/json');
+echo json_encode(['data' => 'premium payload']);
+```
+
 ## API Reference
 
 ### `PonponPay` Class
@@ -121,6 +148,36 @@ try {
 | `getMerchantDetail()` | Get merchant info | `Merchant` |
 | `activatePlugin(string $type)` | Activate plugin | `bool` |
 | `webhook(?NonceStorageInterface $nonce)` | Create webhook handler (shares API Key) | `WebhookHandler` |
+| `x402(array $options)` | Create x402 agent payment helper | `X402` |
+
+### `x402` Resource Options
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `payTo` | ✅ | Merchant EVM wallet address receiving USDC |
+| `resource` | ✅ | Canonical protected resource URL |
+| `price` | ✅* | Human-readable price, e.g. `$0.01` |
+| `maxAmountRequired` | ✅* | USDC base-unit amount; required if `price` is omitted |
+| `method` | ❌ | Protected HTTP method |
+| `description` | ❌ | Description shown to agents |
+| `mimeType` | ❌ | Resource MIME type |
+| `scheme` | ❌ | Defaults to `exact` |
+| `network` | ❌ | Defaults to `eip155:8453`; supported: `eip155:8453`, `eip155:1`, `eip155:137` |
+| `asset` | ❌ | Defaults to `USDC` |
+| `assetContract` | ❌ | Defaults to the network-specific Circle USDC contract |
+| `maxTimeoutSeconds` | ❌ | Defaults to `60` |
+
+> x402 verification binds the payment to `resource` and `method`. If your application is behind a proxy, pass the canonical public URL to `verifyAndSettle($headers, $method, $url)` so it matches the URL advertised in the 402 requirement.
+
+Supported standard x402 networks:
+
+| Network | Chain | USDC Contract |
+|---------|-------|---------------|
+| `eip155:8453` | Base | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
+| `eip155:1` | Ethereum | `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48` |
+| `eip155:137` | Polygon | `0x3c499c542cef5e3811e1192ce70d8cc03d5c3359` |
+
+Only standard EVM `exact` payments with Circle USDC `transferWithAuthorization` are supported. BSC, Tron, Solana, TON, and BTC are not part of this standard exact flow.
 
 ### `createOrder` Parameters
 
@@ -276,6 +333,25 @@ header('Location: ' . $order->paymentUrl);
 $data = $ponponpay->webhook()->handle();
 if (WebhookHandler::resolveStatus($data) === 'paid') {
     // 支付成功，更新订单状态
+}
+
+// x402 Agent 支付保护接口
+$x402 = $ponponpay->x402([
+    'resource' => [
+        'payTo' => '0x你的EVM收款钱包',
+        'resource' => 'https://api.example.com/premium-data',
+        'method' => 'GET',
+        'price' => '$0.01',
+        'maxAmountRequired' => '10000',
+        'network' => 'eip155:8453',
+        'asset' => 'USDC',
+        'description' => '高级数据接口',
+    ],
+]);
+
+$result = $x402->verifyAndSettle();
+if (!$result['paid']) {
+    $x402->sendRequirementAndExit();
 }
 ```
 

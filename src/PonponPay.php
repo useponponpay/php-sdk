@@ -159,6 +159,17 @@ class PonponPay
     }
 
     /**
+     * Create an x402 helper for agent payments
+     *
+     * @param array $options x402 configuration
+     * @return X402
+     */
+    public function x402(array $options): X402
+    {
+        return new X402($this->client, $options);
+    }
+
+    /**
      * Get the underlying API client for advanced use cases
      *
      * @return ApiClient

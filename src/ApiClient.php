@@ -16,7 +16,7 @@ use PonponPay\Exception\ConfigException;
 class ApiClient
 {
     /** @var string SDK version */
-    const VERSION = '1.0.0';
+    const VERSION = '1.1.0';
 
     /** @var string Default API base URL */
     const DEFAULT_API_URL = 'https://api.ponponpay.com';
@@ -139,6 +139,30 @@ class ApiClient
         return $this->request('/api/v1/pay/sdk/plugin/activate', [
             'plugin_type' => $pluginType,
         ]);
+    }
+
+    /**
+     * Verify an x402 payment payload
+     *
+     * @param array $params x402 verification payload
+     * @return array API response data
+     * @throws ApiException
+     */
+    public function verifyX402(array $params): array
+    {
+        return $this->request('/api/v1/x402/verify', $params);
+    }
+
+    /**
+     * Settle an x402 payment payload
+     *
+     * @param array $params x402 settlement payload
+     * @return array API response data
+     * @throws ApiException
+     */
+    public function settleX402(array $params): array
+    {
+        return $this->request('/api/v1/x402/settle', $params);
     }
 
     /**

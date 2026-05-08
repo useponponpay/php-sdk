@@ -269,7 +269,7 @@ test('Webhook - 过期时间戳拒绝', function () use ($apiKey) {
 	$handler = $pp->webhook();
 
 	$body = '{}';
-	$timestamp = (string) (time() - 600); // 10分钟前
+	$timestamp = (string) (time() - 600); // 10 minutes ago
 
 	$headers = [
 		'X-Key-Prefix' => substr($apiKey, 0, 12),
