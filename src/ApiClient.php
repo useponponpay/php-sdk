@@ -150,7 +150,7 @@ class ApiClient
      */
     public function verifyX402(array $params): array
     {
-        return $this->request('/api/v1/x402/verify', $params);
+        return $this->request('/api/v1/pay/x402/verify', $params);
     }
 
     /**
@@ -162,7 +162,7 @@ class ApiClient
      */
     public function settleX402(array $params): array
     {
-        return $this->request('/api/v1/x402/settle', $params);
+        return $this->request('/api/v1/pay/x402/settle', $params);
     }
 
     /**
