@@ -1,6 +1,6 @@
 <?php
 /**
- * PonponPay PHP SDK - create order example
+ * PolyPay PHP SDK - create order example
  *
  * Demonstrates how to use the SDK to create a cryptocurrency payment order.
  */
@@ -11,9 +11,9 @@
 // Load without Composer
 require_once __DIR__ . '/../autoload.php';
 
-use PonponPay\PonponPay;
-use PonponPay\Exception\ApiException;
-use PonponPay\Exception\ConfigException;
+use PolyPay\PolyPay;
+use PolyPay\Exception\ApiException;
+use PolyPay\Exception\ConfigException;
 
 // ==================== Configuration ====================
 
@@ -22,10 +22,10 @@ $apiKey = 'YOUR_API_KEY_HERE';  // Replace with your API Key
 // ==================== Create Order ====================
 
 try {
-    $ponponpay = new PonponPay($apiKey);
+    $polypay = new PolyPay($apiKey);
 
     // Create an order
-    $order = $ponponpay->createOrder([
+    $order = $polypay->createOrder([
         'mch_order_id' => 'ORDER_' . time(),           // Merchant order ID
         'currency'     => 'USDT',                       // Currency
         'network'      => 'tron',                       // Network

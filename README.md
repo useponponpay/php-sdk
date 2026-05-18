@@ -1,6 +1,6 @@
-# PonponPay PHP SDK
+# PolyPay PHP SDK
 
-Accept cryptocurrency payments (USDT, USDC, etc.) on any PHP website via [PonponPay](https://ponponpay.com).
+Accept cryptocurrency payments (USDT, USDC, etc.) on any PHP website via [PolyPay](https://polypay.ai).
 
 [English](#installation) | [中文](#安装)
 
@@ -24,7 +24,7 @@ Accept cryptocurrency payments (USDT, USDC, etc.) on any PHP website via [Ponpon
 ### Via Composer (Recommended)
 
 ```bash
-composer require ponponpay/php-sdk
+composer require polypay/php-sdk
 ```
 
 ### Manual Installation
@@ -40,15 +40,15 @@ require_once '/path/to/php-sdk/autoload.php';
 ### 1. Initialize
 
 ```php
-use PonponPay\PonponPay;
+use PolyPay\PolyPay;
 
-$ponponpay = new PonponPay('your-api-key');
+$polypay = new PolyPay('your-api-key');
 ```
 
 ### 2. Get Payment Methods
 
 ```php
-$methods = $ponponpay->getPaymentMethods();
+$methods = $polypay->getPaymentMethods();
 
 foreach ($methods as $method) {
     echo $method->network . ': ' . implode(', ', $method->currencies) . "\n";
@@ -62,7 +62,7 @@ foreach ($methods as $method) {
 ### 3. Create an Order
 
 ```php
-$order = $ponponpay->createOrder([
+$order = $polypay->createOrder([
     'mch_order_id' => 'ORDER_001',
     'currency'     => 'USDT',
     'network'      => 'tron',
@@ -72,7 +72,7 @@ $order = $ponponpay->createOrder([
 ]);
 
 echo $order->paymentUrl;  // Redirect user to this URL
-echo $order->tradeId;     // PonponPay trade ID
+echo $order->tradeId;     // PolyPay trade ID
 echo $order->address;     // Payment address
 ```
 
@@ -80,10 +80,10 @@ echo $order->address;     // Payment address
 
 ```php
 // By trade ID
-$order = $ponponpay->getOrderByTradeId('T20240101120000123456');
+$order = $polypay->getOrderByTradeId('T20240101120000123456');
 
 // By merchant order ID
-$order = $ponponpay->getOrderByMchOrderId('ORDER_001');
+$order = $polypay->getOrderByMchOrderId('ORDER_001');
 
 echo $order->status;   // paid, pending, expired, cancelled
 echo $order->txHash;   // Blockchain transaction hash
@@ -93,7 +93,7 @@ echo $order->txHash;   // Blockchain transaction hash
 
 ```php
 try {
-    $data = $ponponpay->webhook()->handle();
+    $data = $polypay->webhook()->handle();
     $status = WebhookHandler::resolveStatus($data);
 
     if ($status === 'paid') {
@@ -103,7 +103,7 @@ try {
 
     http_response_code(200);
     echo 'OK';
-} catch (\PonponPay\Exception\SignatureException $e) {
+} catch (\PolyPay\Exception\SignatureException $e) {
     http_response_code($e->getHttpStatus());
     echo $e->getMessage();
 }
@@ -112,7 +112,7 @@ try {
 ### 6. Protect an API with x402 Agent Payments
 
 ```php
-$x402 = $ponponpay->x402([
+$x402 = $polypay->x402([
     'resource' => [
         'payTo' => '0xYourMerchantSettlementWallet',
         'resource' => 'https://api.example.com/premium-data',
@@ -137,7 +137,7 @@ echo json_encode(['data' => 'premium payload']);
 
 ## API Reference
 
-### `PonponPay` Class
+### `PolyPay` Class
 
 | Method | Description | Returns |
 |--------|-------------|---------|
@@ -194,7 +194,7 @@ Only standard EVM `exact` payments with Circle USDC `transferWithAuthorization` 
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `tradeId` | `string` | PonponPay trade ID |
+| `tradeId` | `string` | PolyPay trade ID |
 | `paymentUrl` | `string` | Payment page URL |
 | `amount` | `float` | Order amount |
 | `actualAmount` | `float` | Actual crypto amount |
@@ -219,11 +219,11 @@ Only standard EVM `exact` payments with Circle USDC `transferWithAuthorization` 
 ## Configuration Options
 
 ```php
-$ponponpay = new PonponPay('your-api-key', [
-    'api_url'        => 'https://api.ponponpay.com',  // API base URL
+$polypay = new PolyPay('your-api-key', [
+    'api_url'        => 'https://api.polypay.ai',  // API base URL
     'timeout'        => 30,                            // Request timeout (seconds)
     'debug'          => false,                         // Enable debug logging
-    'debug_log_file' => '/tmp/ponponpay-debug.log',    // Debug log file path
+    'debug_log_file' => '/tmp/polypay-debug.log',    // Debug log file path
 ]);
 ```
 
@@ -232,7 +232,7 @@ $ponponpay = new PonponPay('your-api-key', [
 By default, the webhook handler uses file-based nonce storage. For high-traffic scenarios, implement `NonceStorageInterface` with Redis:
 
 ```php
-use PonponPay\Nonce\NonceStorageInterface;
+use PolyPay\Nonce\NonceStorageInterface;
 
 class RedisNonceStorage implements NonceStorageInterface
 {
@@ -246,23 +246,23 @@ class RedisNonceStorage implements NonceStorageInterface
     public function consume(string $nonce, int $ttl = 600): bool
     {
         // SET NX returns true only if key doesn't exist
-        return $this->redis->set('ponponpay_nonce:' . $nonce, '1', ['NX', 'EX' => $ttl]);
+        return $this->redis->set('polypay_nonce:' . $nonce, '1', ['NX', 'EX' => $ttl]);
     }
 }
 
 // Usage
-$handler = $ponponpay->webhook(new RedisNonceStorage($redis));
+$handler = $polypay->webhook(new RedisNonceStorage($redis));
 ```
 
 ## Error Handling
 
 ```php
-use PonponPay\Exception\ConfigException;
-use PonponPay\Exception\ApiException;
-use PonponPay\Exception\SignatureException;
+use PolyPay\Exception\ConfigException;
+use PolyPay\Exception\ApiException;
+use PolyPay\Exception\SignatureException;
 
 try {
-    $order = $ponponpay->createOrder([...]);
+    $order = $polypay->createOrder([...]);
 } catch (ConfigException $e) {
     // API Key not configured
 } catch (ApiException $e) {
@@ -294,7 +294,7 @@ MIT License. See [LICENSE](./LICENSE) for details.
 ### 通过 Composer（推荐）
 
 ```bash
-composer require ponponpay/php-sdk
+composer require polypay/php-sdk
 ```
 
 ### 手动安装
@@ -308,17 +308,17 @@ require_once '/path/to/php-sdk/autoload.php';
 ## 快速开始
 
 ```php
-use PonponPay\PonponPay;
-use PonponPay\WebhookHandler;
+use PolyPay\PolyPay;
+use PolyPay\WebhookHandler;
 
 // 初始化
-$ponponpay = new PonponPay('你的API Key');
+$polypay = new PolyPay('你的API Key');
 
 // 获取支付方式
-$methods = $ponponpay->getPaymentMethods();
+$methods = $polypay->getPaymentMethods();
 
 // 创建订单
-$order = $ponponpay->createOrder([
+$order = $polypay->createOrder([
     'mch_order_id' => 'ORDER_001',
     'currency'     => 'USDT',
     'network'      => 'tron',
@@ -330,13 +330,13 @@ $order = $ponponpay->createOrder([
 header('Location: ' . $order->paymentUrl);
 
 // 处理回调（自动共享 API Key）
-$data = $ponponpay->webhook()->handle();
+$data = $polypay->webhook()->handle();
 if (WebhookHandler::resolveStatus($data) === 'paid') {
     // 支付成功，更新订单状态
 }
 
 // x402 Agent 支付保护接口
-$x402 = $ponponpay->x402([
+$x402 = $polypay->x402([
     'resource' => [
         'payTo' => '0x你的EVM收款钱包',
         'resource' => 'https://api.example.com/premium-data',

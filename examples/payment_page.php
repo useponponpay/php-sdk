@@ -1,6 +1,6 @@
 <?php
 /**
- * PonponPay PHP SDK - full payment page example
+ * PolyPay PHP SDK - full payment page example
  *
  * This example shows how to build a complete cryptocurrency checkout page with the SDK.
  * It includes backend order creation, frontend payment-method selection, and automatic redirect.
@@ -17,8 +17,8 @@
 // Load without Composer
 require_once __DIR__ . '/../autoload.php';
 
-use PonponPay\PonponPay;
-use PonponPay\Exception\ApiException;
+use PolyPay\PolyPay;
+use PolyPay\Exception\ApiException;
 
 // ==================== Configuration ====================
 
@@ -38,8 +38,8 @@ $fiatCurrency = isset($_GET['currency']) ? htmlspecialchars($_GET['currency']) :
 if (isset($_GET['action']) && $_GET['action'] === 'methods') {
     header('Content-Type: application/json');
     try {
-        $ponponpay = new PonponPay($config['api_key']);
-        $methods = $ponponpay->getPaymentMethods();
+        $polypay = new PolyPay($config['api_key']);
+        $methods = $polypay->getPaymentMethods();
         $result = [];
         foreach ($methods as $method) {
             $result[] = $method->toArray();
@@ -57,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     $input = json_decode(file_get_contents('php://input'), true);
 
     try {
-        $ponponpay = new PonponPay($config['api_key']);
-        $order = $ponponpay->createOrder([
+        $polypay = new PolyPay($config['api_key']);
+        $order = $polypay->createOrder([
             'mch_order_id' => 'SDK_' . time() . '_' . substr(md5(uniqid()), 0, 8),
             'currency'     => $input['currency'] ?? '',
             'network'      => $input['network'] ?? '',
@@ -90,7 +90,7 @@ if ($amount <= 0) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pay with Crypto - PonponPay</title>
+    <title>Pay with Crypto - PolyPay</title>
     <style>
         :root {
             --primary: #6366f1;
@@ -386,7 +386,7 @@ if ($amount <= 0) {
     </div>
 
     <div class="footer">
-        Secured by <a href="https://ponponpay.com" target="_blank">PonponPay</a>
+        Secured by <a href="https://polypay.ai" target="_blank">PolyPay</a>
     </div>
 </div>
 

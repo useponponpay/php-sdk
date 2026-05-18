@@ -2,10 +2,10 @@
 /**
  * Order model
  *
- * @package PonponPay\Model
+ * @package PolyPay\Model
  */
 
-namespace PonponPay\Model;
+namespace PolyPay\Model;
 
 class Order
 {

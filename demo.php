@@ -1,6 +1,6 @@
 <?php
 /**
- * PonponPay PHP SDK test script
+ * PolyPay PHP SDK test script
  *
  * Run from the project root with: php demo.php
  * Tests all SDK features.
@@ -8,15 +8,15 @@
 
 require_once __DIR__ . '/autoload.php';
 
-use PonponPay\PonponPay;
-use PonponPay\WebhookHandler;
-use PonponPay\Exception\PonponPayException;
-use PonponPay\Exception\ApiException;
-use PonponPay\Exception\ConfigException;
-use PonponPay\Exception\SignatureException;
-use PonponPay\Model\Order;
-use PonponPay\Model\PaymentMethod;
-use PonponPay\Nonce\FileNonceStorage;
+use PolyPay\PolyPay;
+use PolyPay\WebhookHandler;
+use PolyPay\Exception\PolyPayException;
+use PolyPay\Exception\ApiException;
+use PolyPay\Exception\ConfigException;
+use PolyPay\Exception\SignatureException;
+use PolyPay\Model\Order;
+use PolyPay\Model\PaymentMethod;
+use PolyPay\Nonce\FileNonceStorage;
 
 // ========================================
 // Configuration
@@ -24,10 +24,10 @@ use PonponPay\Nonce\FileNonceStorage;
 
 // API Key and backend URL, replace with your actual values.
 $apiKey = $argv[1] ?? 'YOUR_API_KEY_HERE';
-$apiUrl = $argv[2] ?? 'https://api.ponponpay.com';
+$apiUrl = $argv[2] ?? 'https://api.polypay.ai';
 
 echo "╔══════════════════════════════════════════╗\n";
-echo "║   PonponPay PHP SDK — Integration Test   ║\n";
+echo "║   PolyPay PHP SDK — Integration Test   ║\n";
 echo "╚══════════════════════════════════════════╝\n\n";
 echo "API Key:  " . substr($apiKey, 0, 16) . "...\n";
 echo "API URL:  {$apiUrl}\n";
@@ -70,7 +70,7 @@ echo "━━━ 1. 基础功能测试 ━━━\n\n";
 
 test('ConfigException - 空 API Key', function () {
 	try {
-		new PonponPay('');
+		new PolyPay('');
 		return false;
 	} catch (ConfigException $e) {
 		echo "  → 捕获到: {$e->getMessage()}\n";
@@ -80,7 +80,7 @@ test('ConfigException - 空 API Key', function () {
 
 test('ConfigException - 空白 API Key', function () {
 	try {
-		new PonponPay('   ');
+		new PolyPay('   ');
 		return false;
 	} catch (ConfigException $e) {
 		echo "  → 捕获到: {$e->getMessage()}\n";
@@ -88,18 +88,18 @@ test('ConfigException - 空白 API Key', function () {
 	}
 });
 
-test('PonponPay 初始化', function () use ($apiKey) {
-	$pp = new PonponPay($apiKey, ['api_url' => 'https://test.example.com']);
+test('PolyPay 初始化', function () use ($apiKey) {
+	$pp = new PolyPay($apiKey, ['api_url' => 'https://test.example.com']);
 	echo "  → 实例创建成功\n";
-	return $pp instanceof PonponPay;
+	return $pp instanceof PolyPay;
 });
 
-test('PonponPay 带 debug 选项初始化', function () use ($apiKey) {
-	$pp = new PonponPay($apiKey, [
+test('PolyPay 带 debug 选项初始化', function () use ($apiKey) {
+	$pp = new PolyPay($apiKey, [
 		'api_url' => 'https://test.example.com',
 		'timeout' => 10,
 		'debug' => true,
-		'debug_log_file' => '/tmp/ponponpay-test.log',
+		'debug_log_file' => '/tmp/polypay-test.log',
 	]);
 	echo "  → 带 debug 配置实例创建成功\n";
 	return true;
@@ -108,7 +108,7 @@ test('PonponPay 带 debug 选项初始化', function () use ($apiKey) {
 test('Order 模型', function () {
 	$order = Order::fromArray([
 		'trade_id' => 'T20240101120000123456',
-		'payment_url' => 'https://pay.ponponpay.com/pay/T20240101120000123456',
+		'payment_url' => 'https://pay.polypay.ai/pay/T20240101120000123456',
 		'amount' => 10.50,
 		'actual_amount' => 10.50,
 		'address' => 'TXxxxxxxxxxxxxxxxxxxxxxxxxx',
@@ -185,14 +185,14 @@ test('SignatureException 属性', function () {
 echo "━━━ 2. Webhook 签名验证测试 ━━━\n\n";
 
 test('Webhook - webhook() 创建成功', function () use ($apiKey) {
-	$pp = new PonponPay($apiKey);
+	$pp = new PolyPay($apiKey);
 	$handler = $pp->webhook();
 	echo "  → WebhookHandler 实例创建成功\n";
 	return $handler instanceof WebhookHandler;
 });
 
 test('Webhook - 签名验证通过', function () use ($apiKey) {
-	$pp = new PonponPay($apiKey);
+	$pp = new PolyPay($apiKey);
 	$handler = $pp->webhook();
 
 	// Simulate a valid callback.
@@ -241,7 +241,7 @@ test('Webhook - resolveStatus() 状态映射', function () {
 });
 
 test('Webhook - 无效签名拒绝', function () use ($apiKey) {
-	$pp = new PonponPay($apiKey);
+	$pp = new PolyPay($apiKey);
 	$handler = $pp->webhook();
 
 	$body = json_encode(['order_no' => 'TEST_002', 'status' => 2]);
@@ -265,7 +265,7 @@ test('Webhook - 无效签名拒绝', function () use ($apiKey) {
 });
 
 test('Webhook - 过期时间戳拒绝', function () use ($apiKey) {
-	$pp = new PonponPay($apiKey);
+	$pp = new PolyPay($apiKey);
 	$handler = $pp->webhook();
 
 	$body = '{}';
@@ -288,7 +288,7 @@ test('Webhook - 过期时间戳拒绝', function () use ($apiKey) {
 });
 
 test('Webhook - 错误的 Key Prefix 拒绝', function () use ($apiKey) {
-	$pp = new PonponPay($apiKey);
+	$pp = new PolyPay($apiKey);
 	$handler = $pp->webhook();
 
 	$headers = [
@@ -308,7 +308,7 @@ test('Webhook - 错误的 Key Prefix 拒绝', function () use ($apiKey) {
 });
 
 test('Webhook - 缺少签名头拒绝', function () use ($apiKey) {
-	$pp = new PonponPay($apiKey);
+	$pp = new PolyPay($apiKey);
 	$handler = $pp->webhook();
 
 	try {
@@ -321,7 +321,7 @@ test('Webhook - 缺少签名头拒绝', function () use ($apiKey) {
 });
 
 test('Nonce 防重放', function () use ($apiKey) {
-	$pp = new PonponPay($apiKey);
+	$pp = new PolyPay($apiKey);
 
 	$body = json_encode(['order_no' => 'NONCE_TEST', 'status' => 2]);
 	$timestamp = (string) time();
@@ -361,14 +361,14 @@ test('Nonce 防重放', function () use ($apiKey) {
 echo "━━━ 3. Nonce 存储测试 ━━━\n\n";
 
 test('FileNonceStorage - 首次消费成功', function () {
-	$storage = new FileNonceStorage(sys_get_temp_dir() . '/ponponpay_test_nonces_' . time());
+	$storage = new FileNonceStorage(sys_get_temp_dir() . '/polypay_test_nonces_' . time());
 	$result = $storage->consume('test_nonce_' . time(), 60);
 	echo "  → consume() 返回: " . ($result ? 'true' : 'false') . "\n";
 	return $result === true;
 });
 
 test('FileNonceStorage - 重复消费失败', function () {
-	$storage = new FileNonceStorage(sys_get_temp_dir() . '/ponponpay_test_nonces_' . time());
+	$storage = new FileNonceStorage(sys_get_temp_dir() . '/polypay_test_nonces_' . time());
 	$nonce = 'test_nonce_dup_' . time();
 	$first = $storage->consume($nonce, 60);
 	$second = $storage->consume($nonce, 60);
@@ -384,18 +384,18 @@ test('FileNonceStorage - 重复消费失败', function () {
 if ($apiKey !== 'YOUR_API_KEY_HERE') {
 	echo "━━━ 4. API 联调测试 ━━━\n\n";
 
-	$ponponpay = new PonponPay($apiKey, [
+	$polypay = new PolyPay($apiKey, [
 		'api_url' => $apiUrl,
 		'debug' => true,
-		'debug_log_file' => '/tmp/ponponpay-demo-debug.log',
+		'debug_log_file' => '/tmp/polypay-demo-debug.log',
 	]);
 
 	// Shared variables used by subsequent tests.
 	$availableMethods = [];
 	$createdTradeId = '';
 
-	test('API - 获取支付方式', function () use ($ponponpay, &$availableMethods) {
-		$methods = $ponponpay->getPaymentMethods();
+	test('API - 获取支付方式', function () use ($polypay, &$availableMethods) {
+		$methods = $polypay->getPaymentMethods();
 		echo "  → 获取到 " . count($methods) . " 个网络\n";
 		foreach ($methods as $m) {
 			echo "    • {$m->network}: " . implode(', ', $m->currencies) . "\n";
@@ -404,14 +404,14 @@ if ($apiKey !== 'YOUR_API_KEY_HERE') {
 		return count($methods) > 0;
 	});
 
-	test('API - 获取商户信息', function () use ($ponponpay) {
-		$merchant = $ponponpay->getMerchantDetail();
+	test('API - 获取商户信息', function () use ($polypay) {
+		$merchant = $polypay->getMerchantDetail();
 		echo "  → 商户ID:   {$merchant->mchId}\n";
 		echo "  → 商户名称: {$merchant->name}\n";
 		return !empty($merchant->mchId);
 	});
 
-	test('API - 创建订单', function () use ($ponponpay, &$availableMethods, &$createdTradeId) {
+	test('API - 创建订单', function () use ($polypay, &$availableMethods, &$createdTradeId) {
 		if (empty($availableMethods)) {
 			echo "  → ⚠️ 无可用支付方式，跳过\n";
 			return false;
@@ -423,7 +423,7 @@ if ($apiKey !== 'YOUR_API_KEY_HERE') {
 		$currency = $method->currencies[0] ?? 'USDT';
 		echo "  → 使用: {$network} / {$currency}\n";
 
-		$order = $ponponpay->createOrder([
+		$order = $polypay->createOrder([
 			'mch_order_id' => 'SDK_TEST_' . time(),
 			'currency' => $currency,
 			'network' => $network,
@@ -439,13 +439,13 @@ if ($apiKey !== 'YOUR_API_KEY_HERE') {
 		return !empty($order->tradeId) && !empty($order->paymentUrl);
 	});
 
-	test('API - 查询订单（通过 Trade ID）', function () use ($ponponpay, &$createdTradeId) {
+	test('API - 查询订单（通过 Trade ID）', function () use ($polypay, &$createdTradeId) {
 		if (empty($createdTradeId)) {
 			echo "  → ⚠️ 无已创建的订单，跳过\n";
 			return true;
 		}
 		try {
-			$order = $ponponpay->getOrderByTradeId($createdTradeId);
+			$order = $polypay->getOrderByTradeId($createdTradeId);
 			echo "  → Trade ID:   {$order->tradeId}\n";
 			echo "  → Status:     {$order->status}\n";
 			echo "  → Address:    {$order->address}\n";
@@ -459,7 +459,7 @@ if ($apiKey !== 'YOUR_API_KEY_HERE') {
 	echo "━━━ 4. API 联调测试（跳过）━━━\n\n";
 	echo "  ⚠️  未提供有效 API Key，跳过 API 联调测试\n";
 	echo "  用法: php demo.php <API_KEY> [API_URL]\n";
-	echo "  示例: php demo.php sk_test_xxxx https://api.ponponpay.com\n\n";
+	echo "  示例: php demo.php sk_test_xxxx https://api.polypay.ai\n\n";
 }
 
 // ========================================

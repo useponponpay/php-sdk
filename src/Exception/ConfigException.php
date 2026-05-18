@@ -4,11 +4,11 @@
  *
  * Thrown when the SDK configuration is invalid, for example when the API Key is empty.
  *
- * @package PonponPay\Exception
+ * @package PolyPay\Exception
  */
 
-namespace PonponPay\Exception;
+namespace PolyPay\Exception;
 
-class ConfigException extends PonponPayException
+class ConfigException extends PolyPayException
 {
 }

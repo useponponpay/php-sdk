@@ -1,9 +1,9 @@
 <?php
 /**
- * PonponPay webhook callback handler
+ * PolyPay webhook callback handler
  *
- * Verifies callback signatures from the PonponPay backend to prevent forgery and replay attacks.
- * Create instances through PonponPay::webhook().
+ * Verifies callback signatures from the PolyPay backend to prevent forgery and replay attacks.
+ * Create instances through PolyPay::webhook().
  *
  * Signature algorithm:
  * 1. Verify that X-Key-Prefix matches the first 12 characters of the API Key
@@ -13,26 +13,26 @@
  * 5. Compare the result with X-Signature
  *
  * Example:
- *   $ponponpay = new \PonponPay\PonponPay('your-api-key');
+ *   $polypay = new \PolyPay\PolyPay('your-api-key');
  *   try {
- *       $data = $ponponpay->webhook()->handle();
+ *       $data = $polypay->webhook()->handle();
  *       // Process the payment result using $data['order_no'] and $data['status']
  *       http_response_code(200);
  *       echo 'OK';
- *   } catch (\PonponPay\Exception\SignatureException $e) {
+ *   } catch (\PolyPay\Exception\SignatureException $e) {
  *       http_response_code($e->getHttpStatus());
  *       echo $e->getMessage();
  *   }
  *
- * @package PonponPay
+ * @package PolyPay
  */
 
-namespace PonponPay;
+namespace PolyPay;
 
-use PonponPay\Exception\ConfigException;
-use PonponPay\Exception\SignatureException;
-use PonponPay\Nonce\FileNonceStorage;
-use PonponPay\Nonce\NonceStorageInterface;
+use PolyPay\Exception\ConfigException;
+use PolyPay\Exception\SignatureException;
+use PolyPay\Nonce\FileNonceStorage;
+use PolyPay\Nonce\NonceStorageInterface;
 
 class WebhookHandler
 {
@@ -194,7 +194,7 @@ class WebhookHandler
     /**
      * Resolve the payment status from callback data
      *
-     * PonponPay callback status codes:
+     * PolyPay callback status codes:
      *   1 - Pending payment
      *   2 - Payment successful
      *   3 - Expired

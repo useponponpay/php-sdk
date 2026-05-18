@@ -1,6 +1,6 @@
 <?php
 /**
- * PonponPay PHP SDK - query order example
+ * PolyPay PHP SDK - query order example
  *
  * Demonstrates how to query an order that has already been created.
  */
@@ -11,8 +11,8 @@
 // Load without Composer
 require_once __DIR__ . '/../autoload.php';
 
-use PonponPay\PonponPay;
-use PonponPay\Exception\ApiException;
+use PolyPay\PolyPay;
+use PolyPay\Exception\ApiException;
 
 // ==================== Configuration ====================
 
@@ -21,10 +21,10 @@ $apiKey = 'YOUR_API_KEY_HERE';
 // ==================== Query Order ====================
 
 try {
-    $ponponpay = new PonponPay($apiKey);
+    $polypay = new PolyPay($apiKey);
 
     // Option 1: query by trade ID
-    $order = $ponponpay->getOrderByTradeId('T20240101120000123456');
+    $order = $polypay->getOrderByTradeId('T20240101120000123456');
 
     echo "Order found!\n";
     echo "Trade ID:      {$order->tradeId}\n";
@@ -36,7 +36,7 @@ try {
     echo "TX Hash:       {$order->txHash}\n";
 
     // Option 2: query by merchant order ID
-    // $order = $ponponpay->getOrderByMchOrderId('ORDER_12345');
+    // $order = $polypay->getOrderByMchOrderId('ORDER_12345');
 
 } catch (ApiException $e) {
     echo "API error: {$e->getMessage()}\n";

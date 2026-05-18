@@ -1,6 +1,6 @@
 <?php
 /**
- * PonponPay PHP SDK Web Demo
+ * PolyPay PHP SDK Web Demo
  *
  * A complete checkout experience page built with the SDK.
  * Start with: php -S 0.0.0.0:8003 -t php-sdk/demo-web
@@ -9,18 +9,18 @@
 
 require_once __DIR__ . '/../autoload.php';
 
-use PonponPay\PonponPay;
+use PolyPay\PolyPay;
 
 // ==================== Configuration ====================
 
 $config = [
     'api_key'      => 'YOUR_API_KEY_HERE',
-    'api_url'      => 'https://api.ponponpay.com',
+    'api_url'      => 'https://api.polypay.ai',
     'notify_url'   => 'https://your-site.com/webhook',
     'redirect_url' => 'https://your-site.com/success',
 ];
 
-$ponponpay = new PonponPay($config['api_key'], [
+$polypay = new PolyPay($config['api_key'], [
     'api_url' => $config['api_url'],
 ]);
 
@@ -32,7 +32,7 @@ $action = $_GET['action'] ?? '';
 if ($action === 'methods') {
     header('Content-Type: application/json');
     try {
-        $methods = $ponponpay->getPaymentMethods();
+        $methods = $polypay->getPaymentMethods();
         $result = [];
         foreach ($methods as $method) {
             $result[] = $method->toArray();
@@ -48,7 +48,7 @@ if ($action === 'methods') {
 if ($action === 'merchant') {
     header('Content-Type: application/json');
     try {
-        $merchant = $ponponpay->getMerchantDetail();
+        $merchant = $polypay->getMerchantDetail();
         echo json_encode(['success' => true, 'merchant' => $merchant->toArray()]);
     } catch (\Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -62,7 +62,7 @@ if ($action === 'create-order' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
 
     try {
-        $order = $ponponpay->createOrder([
+        $order = $polypay->createOrder([
             'mch_order_id' => 'DEMO_' . time() . '_' . substr(md5(uniqid()), 0, 6),
             'currency'     => $input['currency'] ?? '',
             'network'      => $input['network'] ?? '',
@@ -95,7 +95,7 @@ $fiatCurrency = isset($_GET['currency']) ? htmlspecialchars($_GET['currency']) :
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PonponPay SDK Demo — Crypto Checkout</title>
+    <title>PolyPay SDK Demo — Crypto Checkout</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -550,7 +550,7 @@ $fiatCurrency = isset($_GET['currency']) ? htmlspecialchars($_GET['currency']) :
 <div class="top-bar">
     <div class="logo">
         <div class="logo-dot"></div>
-        PonponPay
+        PolyPay
     </div>
     <div class="badge">SDK Demo</div>
 </div>
@@ -595,7 +595,7 @@ $fiatCurrency = isset($_GET['currency']) ? htmlspecialchars($_GET['currency']) :
     </div>
 
     <div class="checkout-footer">
-        Secured by <a href="https://ponponpay.com" target="_blank">PonponPay</a> · PHP SDK v1.0
+        Secured by <a href="https://polypay.ai" target="_blank">PolyPay</a> · PHP SDK v1.0
     </div>
 </div>
 

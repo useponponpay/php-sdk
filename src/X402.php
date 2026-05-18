@@ -4,15 +4,15 @@
  *
  * This helper builds standard x402 payment requirements, returns HTTP 402
  * responses for unpaid requests, and delegates verification / settlement to
- * the PonponPay facilitator API.
+ * the PolyPay facilitator API.
  *
- * @package PonponPay
+ * @package PolyPay
  */
 
-namespace PonponPay;
+namespace PolyPay;
 
-use PonponPay\Exception\ApiException;
-use PonponPay\Exception\ConfigException;
+use PolyPay\Exception\ApiException;
+use PolyPay\Exception\ConfigException;
 
 class X402
 {
@@ -196,7 +196,7 @@ class X402
     }
 
     /**
-     * Build the PonponPay facilitator request payload
+     * Build the PolyPay facilitator request payload
      *
      * @param string $payment Encoded X-PAYMENT payload
      * @param array  $current Current request metadata

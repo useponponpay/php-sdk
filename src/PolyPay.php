@@ -1,26 +1,26 @@
 <?php
 /**
- * Main PonponPay SDK facade
+ * Main PolyPay SDK facade
  *
  * Merchants can use this class to perform all payment operations.
  *
  * Example:
- *   $ponponpay = new \PonponPay\PonponPay('your-api-key');
- *   $methods = $ponponpay->getPaymentMethods();
- *   $order = $ponponpay->createOrder([...]);
+ *   $polypay = new \PolyPay\PolyPay('your-api-key');
+ *   $methods = $polypay->getPaymentMethods();
+ *   $order = $polypay->createOrder([...]);
  *
- * @package PonponPay
+ * @package PolyPay
  */
 
-namespace PonponPay;
+namespace PolyPay;
 
-use PonponPay\Exception\ApiException;
-use PonponPay\Model\Merchant;
-use PonponPay\Model\Order;
-use PonponPay\Model\PaymentMethod;
-use PonponPay\Nonce\NonceStorageInterface;
+use PolyPay\Exception\ApiException;
+use PolyPay\Model\Merchant;
+use PolyPay\Model\Order;
+use PolyPay\Model\PaymentMethod;
+use PolyPay\Nonce\NonceStorageInterface;
 
-class PonponPay
+class PolyPay
 {
     /** @var string API Key */
     private string $apiKey;
@@ -33,7 +33,7 @@ class PonponPay
      *
      * @param string $apiKey  API Key, required
      * @param array  $options Optional configuration:
-     *   - api_url        (string) API base URL, defaults to https://api.ponponpay.com
+     *   - api_url        (string) API base URL, defaults to https://api.polypay.ai
      *   - timeout        (int)    Timeout in seconds, defaults to 30
      *   - debug          (bool)   Whether debug logging is enabled, defaults to false
      *   - debug_log_file (string) Debug log file path

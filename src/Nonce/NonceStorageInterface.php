@@ -5,10 +5,10 @@
  * Used for replay protection in webhook callbacks.
  * Merchants can implement this interface with Redis, a database, or any custom storage.
  *
- * @package PonponPay\Nonce
+ * @package PolyPay\Nonce
  */
 
-namespace PonponPay\Nonce;
+namespace PolyPay\Nonce;
 
 interface NonceStorageInterface
 {

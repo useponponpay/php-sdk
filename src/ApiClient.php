@@ -1,17 +1,17 @@
 <?php
 /**
- * PonponPay HTTP API client
+ * PolyPay HTTP API client
  *
- * Wraps all HTTP interactions with the PonponPay backend API using cURL
+ * Wraps all HTTP interactions with the PolyPay backend API using cURL
  * with zero external dependencies.
  *
- * @package PonponPay
+ * @package PolyPay
  */
 
-namespace PonponPay;
+namespace PolyPay;
 
-use PonponPay\Exception\ApiException;
-use PonponPay\Exception\ConfigException;
+use PolyPay\Exception\ApiException;
+use PolyPay\Exception\ConfigException;
 
 class ApiClient
 {
@@ -19,7 +19,7 @@ class ApiClient
     const VERSION = '1.1.0';
 
     /** @var string Default API base URL */
-    const DEFAULT_API_URL = 'https://api.ponponpay.com';
+    const DEFAULT_API_URL = 'https://api.polypay.ai';
 
     /** @var string API Key */
     private string $apiKey;
@@ -214,7 +214,7 @@ class ApiClient
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'X-API-Key: ' . $this->apiKey,
-                'User-Agent: PonponPay-PHP-SDK/' . self::VERSION,
+                'User-Agent: PolyPay-PHP-SDK/' . self::VERSION,
             ],
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
@@ -311,7 +311,7 @@ class ApiClient
             return;
         }
 
-        $logFile = $this->debugLogFile ?: sys_get_temp_dir() . '/ponponpay-sdk-debug.log';
+        $logFile = $this->debugLogFile ?: sys_get_temp_dir() . '/polypay-sdk-debug.log';
         $line = gmdate('Y-m-d H:i:s') . ' ' . $message . PHP_EOL;
         file_put_contents($logFile, $line, FILE_APPEND);
     }

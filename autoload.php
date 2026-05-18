@@ -1,16 +1,16 @@
 <?php
 /**
- * PonponPay PHP SDK autoloader
+ * PolyPay PHP SDK autoloader
  *
  * For non-Composer projects. Usage:
  *   require_once '/path/to/php-sdk/autoload.php';
  *
- * @package PonponPay
+ * @package PolyPay
  */
 
 spl_autoload_register(function ($class) {
-    // Only handle the PonponPay namespace.
-    $prefix = 'PonponPay\\';
+    // Only handle the PolyPay namespace.
+    $prefix = 'PolyPay\\';
     $prefixLen = strlen($prefix);
 
     if (strncmp($prefix, $class, $prefixLen) !== 0) {

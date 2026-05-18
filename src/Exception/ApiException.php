@@ -4,12 +4,12 @@
  *
  * Thrown when an API request fails, including network, HTTP, or business errors.
  *
- * @package PonponPay\Exception
+ * @package PolyPay\Exception
  */
 
-namespace PonponPay\Exception;
+namespace PolyPay\Exception;
 
-class ApiException extends PonponPayException
+class ApiException extends PolyPayException
 {
     /** @var int HTTP status code */
     private int $httpCode;

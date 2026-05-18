@@ -4,12 +4,12 @@
  *
  * Thrown when webhook signature verification fails.
  *
- * @package PonponPay\Exception
+ * @package PolyPay\Exception
  */
 
-namespace PonponPay\Exception;
+namespace PolyPay\Exception;
 
-class SignatureException extends PonponPayException
+class SignatureException extends PolyPayException
 {
     /** @var int Recommended HTTP status code to return */
     private int $httpStatus;

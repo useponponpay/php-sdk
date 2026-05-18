@@ -1,6 +1,6 @@
 <?php
 /**
- * PonponPay PHP SDK - payment methods example
+ * PolyPay PHP SDK - payment methods example
  *
  * Demonstrates how to fetch the list of payment methods available to the merchant.
  */
@@ -11,8 +11,8 @@
 // Load without Composer
 require_once __DIR__ . '/../autoload.php';
 
-use PonponPay\PonponPay;
-use PonponPay\Exception\ApiException;
+use PolyPay\PolyPay;
+use PolyPay\Exception\ApiException;
 
 // ==================== Configuration ====================
 
@@ -21,9 +21,9 @@ $apiKey = 'YOUR_API_KEY_HERE';
 // ==================== Get Payment Methods ====================
 
 try {
-    $ponponpay = new PonponPay($apiKey);
+    $polypay = new PolyPay($apiKey);
 
-    $methods = $ponponpay->getPaymentMethods();
+    $methods = $polypay->getPaymentMethods();
 
     echo "Available payment methods:\n";
     echo str_repeat('-', 40) . "\n";

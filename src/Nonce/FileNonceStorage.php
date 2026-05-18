@@ -5,10 +5,10 @@
  * Uses the local filesystem to store nonces for replay protection.
  * Suitable for low to medium traffic. Redis is recommended for high-traffic scenarios.
  *
- * @package PonponPay\Nonce
+ * @package PolyPay\Nonce
  */
 
-namespace PonponPay\Nonce;
+namespace PolyPay\Nonce;
 
 class FileNonceStorage implements NonceStorageInterface
 {
@@ -23,7 +23,7 @@ class FileNonceStorage implements NonceStorageInterface
     public function __construct(string $directory = '')
     {
         if (empty($directory)) {
-            $directory = sys_get_temp_dir() . '/ponponpay_nonces';
+            $directory = sys_get_temp_dir() . '/polypay_nonces';
         }
 
         $this->directory = rtrim($directory, '/');
