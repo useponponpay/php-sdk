@@ -45,6 +45,16 @@ use PolyPay\PolyPay;
 $polypay = new PolyPay('your-api-key');
 ```
 
+### Sandbox Testing
+
+Use a sandbox API key that starts with `sk_sandbox_` to create sandbox orders:
+
+```php
+$polypay = new PolyPay('sk_sandbox_your_key');
+```
+
+The API base URL stays the same. PolyPay separates production and sandbox data by the API key environment. Sandbox orders use `SB...` trade IDs and virtual payment addresses, and you can simulate payment states from the merchant dashboard.
+
 ### 2. Get Payment Methods
 
 ```php
