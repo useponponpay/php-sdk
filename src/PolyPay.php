@@ -6,7 +6,7 @@
  *
  * Example:
  *   $polypay = new \PolyPay\PolyPay('your-api-key');
- *   $methods = $polypay->getPaymentMethods();
+ *   $checkoutUrl = \PolyPay\PolyPay::buildCheckoutUrl([...]);
  *   $order = $polypay->createOrder([...]);
  *
  * @package PolyPay
@@ -70,6 +70,90 @@ class PolyPay
     }
 
     /**
+     * Build a hosted checkout URL.
+     *
+     * PolyPay hosts the payment method selection page. If currency and network
+     * are included, hosted checkout skips selection and opens the payment page.
+     *
+     * @param array $params Checkout parameters:
+     *   - public_key   (string) Merchant public key, required
+     *   - amount       (float|string) Order amount, required
+     *   - timestamp    (int|string) Millisecond timestamp, optional
+     *   - signature    (string) Signature, optional; generated when omitted
+     *   - order_id     (string) Merchant order ID, optional
+     *   - notify_url   (string) Webhook callback URL, optional
+     *   - redirect_url (string) Redirect URL after payment, optional
+     *   - currency     (string) Payment currency, optional
+     *   - network      (string) Payment network, optional
+     *   - contract     (string) Payment contract, optional
+     * @param array $options Optional configuration:
+     *   - checkout_url (string) Hosted checkout origin, defaults to https://checkout.polypay.ai
+     *   - locale       (string) Locale path segment, defaults to en
+     * @return string Hosted checkout URL
+     * @throws ApiException
+     */
+    public static function buildCheckoutUrl(array $params, array $options = []): string
+    {
+        $params = self::normalizeCheckoutParams($params);
+
+        if (($params['public_key'] ?? '') === '') {
+            throw new ApiException('public_key is required');
+        }
+        if (($params['amount'] ?? '') === '') {
+            throw new ApiException('amount is required');
+        }
+
+        $params['timestamp'] = (string)($params['timestamp'] ?? self::currentMilliseconds());
+        $params['amount'] = is_numeric($params['amount'])
+            ? number_format((float)$params['amount'], 2, '.', '')
+            : (string)$params['amount'];
+
+        if (($params['signature'] ?? '') === '') {
+            $params['signature'] = self::generateCheckoutSignature($params, $params['public_key']);
+        }
+
+        $checkoutUrl = rtrim($options['checkout_url'] ?? 'https://checkout.polypay.ai', '/');
+        $locale = trim($options['locale'] ?? 'en');
+        if ($locale === '') {
+            $locale = 'en';
+        }
+
+        $query = array_filter($params, static function ($value): bool {
+            return $value !== null && $value !== '';
+        });
+
+        return $checkoutUrl . '/' . rawurlencode($locale) . '/checkout?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+    }
+
+    /**
+     * Generate hosted checkout signature.
+     *
+     * @param array  $params    Checkout parameters
+     * @param string $publicKey Merchant public key
+     * @return string HMAC-SHA256 signature
+     */
+    public static function generateCheckoutSignature(array $params, string $publicKey): string
+    {
+        $params = self::normalizeCheckoutParams($params);
+        if (isset($params['amount']) && is_numeric($params['amount'])) {
+            $params['amount'] = number_format((float)$params['amount'], 2, '.', '');
+        }
+        unset($params['signature']);
+        ksort($params);
+
+        $pairs = [];
+        foreach ($params as $key => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+            $pairs[] = $key . '=' . $value;
+        }
+
+        $payload = implode('&', $pairs) . '&key=' . $publicKey;
+        return hash_hmac('sha256', $payload, $publicKey);
+    }
+
+    /**
      * Create a payment order
      *
      * @param array $params Order parameters:
@@ -88,6 +172,41 @@ class PolyPay
         $this->assertSuccess($result);
 
         return Order::fromArray($result['data'] ?? []);
+    }
+
+    /**
+     * Normalize hosted checkout parameter aliases.
+     *
+     * @param array $params Raw checkout parameters
+     * @return array Normalized checkout parameters
+     */
+    private static function normalizeCheckoutParams(array $params): array
+    {
+        $aliases = [
+            'publicKey' => 'public_key',
+            'orderId' => 'order_id',
+            'redirectUrl' => 'redirect_url',
+            'notifyUrl' => 'notify_url',
+        ];
+
+        foreach ($aliases as $from => $to) {
+            if (array_key_exists($from, $params) && !array_key_exists($to, $params)) {
+                $params[$to] = $params[$from];
+            }
+            unset($params[$from]);
+        }
+
+        return $params;
+    }
+
+    /**
+     * Get current Unix timestamp in milliseconds.
+     *
+     * @return string Timestamp in milliseconds
+     */
+    private static function currentMilliseconds(): string
+    {
+        return (string)intval(round(microtime(true) * 1000));
     }
 
     /**

@@ -55,21 +55,36 @@ $polypay = new PolyPay('sk_sandbox_your_key');
 
 The API base URL stays the same. PolyPay separates production and sandbox data by the API key environment. Sandbox orders use `SB...` trade IDs and virtual payment addresses, and you can simulate payment states from the merchant dashboard.
 
-### 2. Get Payment Methods
+### 2. Redirect to Hosted Checkout
 
 ```php
-$methods = $polypay->getPaymentMethods();
+$checkoutUrl = PolyPay::buildCheckoutUrl([
+    'public_key'   => 'pub_your_public_key',
+    'amount'       => 10.00,
+    'order_id'     => 'ORDER_001',
+    'notify_url'   => 'https://your-site.com/webhook.php',
+    'redirect_url' => 'https://your-site.com/success',
+]);
 
-foreach ($methods as $method) {
-    echo $method->network . ': ' . implode(', ', $method->currencies) . "\n";
-}
-// Output:
-// Tron: USDT
-// Ethereum: USDT, USDC
-// BSC: USDT, USDC
+header('Location: ' . $checkoutUrl);
+exit;
 ```
 
-### 3. Create an Order
+PolyPay displays the payment method selection page. If your site already has a confirmed payment method, pass `currency` and `network` to skip selection and go directly to the payment page:
+
+```php
+$checkoutUrl = PolyPay::buildCheckoutUrl([
+    'public_key'   => 'pub_your_public_key',
+    'amount'       => 10.00,
+    'order_id'     => 'ORDER_001',
+    'notify_url'   => 'https://your-site.com/webhook.php',
+    'redirect_url' => 'https://your-site.com/success',
+    'currency'     => 'USDT',
+    'network'      => 'Tron',
+]);
+```
+
+### 3. Create an Order with API Key Mode
 
 ```php
 $order = $polypay->createOrder([
@@ -85,6 +100,8 @@ echo $order->paymentUrl;  // Redirect user to this URL
 echo $order->tradeId;     // PolyPay trade ID
 echo $order->address;     // Payment address
 ```
+
+For normal merchant checkout, prefer hosted checkout so PolyPay owns payment method selection.
 
 ### 4. Query Order
 
@@ -151,6 +168,8 @@ echo json_encode(['data' => 'premium payload']);
 
 | Method | Description | Returns |
 |--------|-------------|---------|
+| `buildCheckoutUrl(array $params, array $options = [])` | Build hosted checkout URL | `string` |
+| `generateCheckoutSignature(array $params, string $publicKey)` | Generate hosted checkout signature | `string` |
 | `getPaymentMethods()` | Get available payment methods | `PaymentMethod[]` |
 | `createOrder(array $params)` | Create a payment order | `Order` |
 | `getOrderByTradeId(string $tradeId)` | Query order by trade ID | `Order` |
@@ -291,7 +310,8 @@ See the [`examples/`](./examples) directory for complete, runnable examples:
 - [`query_order.php`](./examples/query_order.php) — Query order status
 - [`webhook.php`](./examples/webhook.php) — Handle payment callback
 - [`payment_methods.php`](./examples/payment_methods.php) — List available methods
-- [`payment_page.php`](./examples/payment_page.php) — Complete checkout page with UI
+- [`hosted_checkout.php`](./examples/hosted_checkout.php) — Redirect to hosted checkout
+- [`payment_page.php`](./examples/payment_page.php) — Hosted checkout redirect example
 
 ## License
 
@@ -324,10 +344,19 @@ use PolyPay\WebhookHandler;
 // 初始化
 $polypay = new PolyPay('你的API Key');
 
-// 获取支付方式
-$methods = $polypay->getPaymentMethods();
+// 跳转到 PolyPay 托管收银台，由 PolyPay 统一选择支付方式
+$checkoutUrl = PolyPay::buildCheckoutUrl([
+    'public_key'   => 'pub_your_public_key',
+    'amount'       => 10.00,
+    'order_id'     => 'ORDER_001',
+    'notify_url'   => 'https://your-site.com/webhook.php',
+    'redirect_url' => 'https://your-site.com/success',
+]);
 
-// 创建订单
+header('Location: ' . $checkoutUrl);
+exit;
+
+// 如果商户已经明确支付方式，也可以使用 API Key 模式直接创建订单
 $order = $polypay->createOrder([
     'mch_order_id' => 'ORDER_001',
     'currency'     => 'USDT',
@@ -335,9 +364,6 @@ $order = $polypay->createOrder([
     'amount'       => 10.00,
     'notify_url'   => 'https://your-site.com/webhook.php',
 ]);
-
-// 跳转用户到支付页
-header('Location: ' . $order->paymentUrl);
 
 // 处理回调（自动共享 API Key）
 $data = $polypay->webhook()->handle();
