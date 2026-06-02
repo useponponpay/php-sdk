@@ -6,7 +6,7 @@
  *
  * Example:
  *   $polypay = new \PolyPay\PolyPay('your-api-key');
- *   $checkoutUrl = \PolyPay\PolyPay::buildCheckoutUrl([...]);
+ *   $checkoutUrl = $polypay->createCheckoutUrl([...]);
  *   $order = $polypay->createOrder([...]);
  *
  * @package PolyPay
@@ -172,6 +172,30 @@ class PolyPay
         $this->assertSuccess($result);
 
         return Order::fromArray($result['data'] ?? []);
+    }
+
+    /**
+     * Create a hosted checkout URL using API Key Mode.
+     *
+     * This method keeps the API Key on the merchant server. Omit currency and
+     * network to show PolyPay's hosted payment method selection page.
+     *
+     * @param array $params Checkout parameters
+     * @return string Hosted checkout URL
+     * @throws ApiException
+     */
+    public function createCheckoutUrl(array $params): string
+    {
+        $result = $this->client->createCheckout($params);
+        $this->assertSuccess($result);
+
+        $data = $result['data'] ?? [];
+        $checkoutUrl = (string)($data['checkout_url'] ?? $data['payment_url'] ?? '');
+        if ($checkoutUrl === '') {
+            throw new ApiException('checkout_url is missing from API response');
+        }
+
+        return $checkoutUrl;
     }
 
     /**

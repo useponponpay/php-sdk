@@ -14,16 +14,19 @@ require_once __DIR__ . '/../autoload.php';
 
 use PolyPay\PolyPay;
 use PolyPay\Exception\ApiException;
+use PolyPay\Exception\ConfigException;
 
-$publicKey = 'pub_your_public_key';
+$apiKey = 'YOUR_API_KEY_HERE';
 
 try {
-    $checkoutUrl = PolyPay::buildCheckoutUrl([
-        'public_key' => $publicKey,
+    $polypay = new PolyPay($apiKey);
+
+    $checkoutUrl = $polypay->createCheckoutUrl([
+        'mch_order_id' => 'ORDER_' . time(),
         'amount' => 10.00,
-        'order_id' => 'ORDER_' . time(),
         'notify_url' => 'https://your-site.com/webhook.php',
         'redirect_url' => 'https://your-site.com/success',
+        'locale' => 'en',
 
         // Optional: include both fields to skip payment method selection.
         // 'currency' => 'USDT',
@@ -32,6 +35,9 @@ try {
 
     header('Location: ' . $checkoutUrl);
     exit;
+} catch (ConfigException $e) {
+    http_response_code(400);
+    echo 'Configuration error: ' . $e->getMessage();
 } catch (ApiException $e) {
     http_response_code(400);
     echo 'Checkout error: ' . $e->getMessage();

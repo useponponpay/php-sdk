@@ -97,6 +97,28 @@ class ApiClient
     }
 
     /**
+     * Create a hosted checkout URL with API Key authentication.
+     *
+     * Omit currency and network to let PolyPay hosted checkout show the
+     * payment method selection page. Include both fields to skip selection.
+     *
+     * @param array $params Checkout parameters:
+     *   - mch_order_id (string) Merchant order ID
+     *   - amount       (float)  Amount
+     *   - notify_url   (string) Webhook callback URL
+     *   - redirect_url (string) Redirect URL after payment, optional
+     *   - currency     (string) Currency, optional
+     *   - network      (string) Network, optional
+     *   - locale       (string) Checkout locale path segment, optional
+     * @return array API response data
+     * @throws ApiException
+     */
+    public function createCheckout(array $params): array
+    {
+        return $this->request('/api/v1/pay/sdk/order/checkout', $params);
+    }
+
+    /**
      * Query order details
      *
      * @param string $tradeId    Trade ID, one of the two identifiers is required

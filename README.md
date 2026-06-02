@@ -55,35 +55,42 @@ $polypay = new PolyPay('sk_sandbox_your_key');
 
 The API base URL stays the same. PolyPay separates production and sandbox data by the API key environment. Sandbox orders use `SB...` trade IDs and virtual payment addresses, and you can simulate payment states from the merchant dashboard.
 
-### 2. Redirect to Hosted Checkout
+### 2. Redirect to Hosted Checkout with API Key Mode
 
 ```php
-$checkoutUrl = PolyPay::buildCheckoutUrl([
-    'public_key'   => 'pub_your_public_key',
+$checkoutUrl = $polypay->createCheckoutUrl([
+    'mch_order_id' => 'ORDER_001',
     'amount'       => 10.00,
-    'order_id'     => 'ORDER_001',
     'notify_url'   => 'https://your-site.com/webhook.php',
     'redirect_url' => 'https://your-site.com/success',
+    'locale'       => 'en',
 ]);
 
 header('Location: ' . $checkoutUrl);
 exit;
 ```
 
-By default, `buildCheckoutUrl()` generates this checkout page:
+PolyPay returns a signed hosted checkout URL such as:
 
 ```text
 https://checkout.polypay.ai/en/checkout
 ```
 
-Set `locale` to choose another checkout page:
+PolyPay displays the payment method selection page. If your site already has a confirmed payment method, pass `currency` and `network` to skip selection and go directly to the payment page:
 
 ```php
-$checkoutUrl = PolyPay::buildCheckoutUrl($params, ['locale' => 'zh']);
-// https://checkout.polypay.ai/zh/checkout
+$checkoutUrl = $polypay->createCheckoutUrl([
+    'mch_order_id' => 'ORDER_001',
+    'amount'       => 10.00,
+    'notify_url'   => 'https://your-site.com/webhook.php',
+    'redirect_url' => 'https://your-site.com/success',
+    'locale'       => 'en',
+    'currency'     => 'USDT',
+    'network'      => 'Tron',
+]);
 ```
 
-PolyPay displays the payment method selection page. If your site already has a confirmed payment method, pass `currency` and `network` to skip selection and go directly to the payment page:
+Use `PolyPay::buildCheckoutUrl()` only when you already manage Public Key hosted checkout parameters yourself:
 
 ```php
 $checkoutUrl = PolyPay::buildCheckoutUrl([
@@ -181,7 +188,8 @@ echo json_encode(['data' => 'premium payload']);
 
 | Method | Description | Returns |
 |--------|-------------|---------|
-| `buildCheckoutUrl(array $params, array $options = [])` | Build hosted checkout URL | `string` |
+| `createCheckoutUrl(array $params)` | Request a signed hosted checkout URL with API Key Mode | `string` |
+| `buildCheckoutUrl(array $params, array $options = [])` | Build a Public Key signed hosted checkout URL manually | `string` |
 | `generateCheckoutSignature(array $params, string $publicKey)` | Generate hosted checkout signature | `string` |
 | `getPaymentMethods()` | Get available payment methods | `PaymentMethod[]` |
 | `createOrder(array $params)` | Create a payment order | `Order` |
@@ -357,21 +365,20 @@ use PolyPay\WebhookHandler;
 // 初始化
 $polypay = new PolyPay('你的API Key');
 
-// 跳转到 PolyPay 托管收银台，由 PolyPay 统一选择支付方式
-$checkoutUrl = PolyPay::buildCheckoutUrl([
-    'public_key'   => 'pub_your_public_key',
+// 使用 API Key 模式跳转到 PolyPay 托管收银台，由 PolyPay 统一选择支付方式
+$checkoutUrl = $polypay->createCheckoutUrl([
+    'mch_order_id' => 'ORDER_001',
     'amount'       => 10.00,
-    'order_id'     => 'ORDER_001',
     'notify_url'   => 'https://your-site.com/webhook.php',
     'redirect_url' => 'https://your-site.com/success',
+    'locale'       => 'zh',
 ]);
 
 header('Location: ' . $checkoutUrl);
 exit;
 
 // 默认跳转页面：https://checkout.polypay.ai/en/checkout
-// 中文收银台：PolyPay::buildCheckoutUrl($params, ['locale' => 'zh'])
-// 对应页面：https://checkout.polypay.ai/zh/checkout
+// 中文收银台：locale = zh，对应页面：https://checkout.polypay.ai/zh/checkout
 
 // 如果商户已经明确支付方式，也可以使用 API Key 模式直接创建订单
 $order = $polypay->createOrder([
