@@ -70,6 +70,19 @@ header('Location: ' . $checkoutUrl);
 exit;
 ```
 
+By default, `buildCheckoutUrl()` generates this checkout page:
+
+```text
+https://checkout.polypay.ai/en/checkout
+```
+
+Set `locale` to choose another checkout page:
+
+```php
+$checkoutUrl = PolyPay::buildCheckoutUrl($params, ['locale' => 'zh']);
+// https://checkout.polypay.ai/zh/checkout
+```
+
 PolyPay displays the payment method selection page. If your site already has a confirmed payment method, pass `currency` and `network` to skip selection and go directly to the payment page:
 
 ```php
@@ -355,6 +368,10 @@ $checkoutUrl = PolyPay::buildCheckoutUrl([
 
 header('Location: ' . $checkoutUrl);
 exit;
+
+// 默认跳转页面：https://checkout.polypay.ai/en/checkout
+// 中文收银台：PolyPay::buildCheckoutUrl($params, ['locale' => 'zh'])
+// 对应页面：https://checkout.polypay.ai/zh/checkout
 
 // 如果商户已经明确支付方式，也可以使用 API Key 模式直接创建订单
 $order = $polypay->createOrder([
