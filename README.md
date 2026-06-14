@@ -45,15 +45,9 @@ use PolyPay\PolyPay;
 $polypay = new PolyPay('your-api-key');
 ```
 
-### Sandbox Testing
+### Testing
 
-Use a sandbox API key that starts with `sk_sandbox_` to create sandbox orders:
-
-```php
-$polypay = new PolyPay('sk_sandbox_your_key');
-```
-
-The API base URL stays the same. PolyPay separates production and sandbox data by the API key environment. Sandbox orders use `SB...` trade IDs and virtual payment addresses, and you can simulate payment states from the merchant dashboard.
+Use a production API key with a low-risk order amount and a dedicated webhook endpoint to validate order creation and callback handling before sending real traffic.
 
 ### 2. Redirect to Hosted Checkout with API Key Mode
 
@@ -265,6 +259,7 @@ Only standard EVM `exact` payments with Circle USDC `transferWithAuthorization` 
 | 3 | Expired | `expired` |
 | 4 | Cancelled | `cancelled` |
 | 5 | Manual recharge | `paid` |
+| 6 | Confirming on-chain | `pending` |
 
 ## Configuration Options
 
