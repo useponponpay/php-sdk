@@ -40,7 +40,7 @@ try {
             // Payment succeeded. Update your business order status.
             // updateOrderStatus($orderNo, 'paid');
             // sendConfirmationEmail($orderNo);
-            error_log("[PolyPay] Payment success: {$orderNo}, TX: " . ($data['tx_hash'] ?? ''));
+            error_log("[PolyPay] Payment success: {$orderNo}, TX: " . ($data['hash'] ?? $data['tx_hash'] ?? ''));
             break;
 
         case 'expired':

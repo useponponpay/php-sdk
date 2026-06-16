@@ -196,7 +196,7 @@ test('Webhook - 签名验证通过', function () use ($apiKey) {
 	$handler = $pp->webhook();
 
 	// Simulate a valid callback.
-	$body = json_encode(['order_no' => 'TEST_001', 'status' => 2, 'tx_hash' => '0xabc123']);
+	$body = json_encode(['order_no' => 'TEST_001', 'status' => 2, 'hash' => '0xabc123']);
 	$timestamp = (string) time();
 	$nonce = bin2hex(random_bytes(16));
 	$keyHash = hash('sha256', $apiKey);
@@ -213,7 +213,7 @@ test('Webhook - 签名验证通过', function () use ($apiKey) {
 	$data = $handler->verify($body, $headers);
 	echo "  → Order No: {$data['order_no']}\n";
 	echo "  → Status:   {$data['status']}\n";
-	echo "  → TX Hash:  {$data['tx_hash']}\n";
+	echo "  → TX Hash:  " . ($data['hash'] ?? $data['tx_hash'] ?? '') . "\n";
 
 	return $data['order_no'] === 'TEST_001' && $data['status'] === 2;
 });
@@ -225,6 +225,7 @@ test('Webhook - resolveStatus() 状态映射', function () {
 		['status' => 3, 'expected' => 'expired'],
 		['status' => 4, 'expected' => 'cancelled'],
 		['status' => 5, 'expected' => 'paid'],
+		['status' => 6, 'expected' => 'pending'],
 		['status' => 99, 'expected' => 'unknown'],
 	];
 
