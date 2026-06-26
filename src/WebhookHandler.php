@@ -200,6 +200,7 @@ class WebhookHandler
      *   3 - Expired
      *   4 - Cancelled
      *   5 - Manual recharge, treated as paid
+     *   6 - Confirming, treated as pending
      *
      * @param array $data Callback payload
      * @return string Normalized status: paid, pending, expired, cancelled
@@ -213,6 +214,7 @@ class WebhookHandler
             case 5:
                 return 'paid';
             case 1:
+            case 6:
                 return 'pending';
             case 3:
                 return 'expired';
