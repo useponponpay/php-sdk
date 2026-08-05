@@ -21,5 +21,8 @@
             "PolyPay\\": "src/"
         }
     },
+    "scripts": {
+        "test": "php tests/x402_test.php"
+    },
     "minimum-stability": "stable"
 }

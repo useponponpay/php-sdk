@@ -159,7 +159,7 @@ $x402 = $polypay->x402([
         'resource' => 'https://api.example.com/premium-data',
         'method' => 'GET',
         'price' => '$0.01',
-        'maxAmountRequired' => '10000',
+        'amount' => '10000',
         'network' => 'eip155:8453',
         'asset' => 'USDC',
         'description' => 'Premium market data',
@@ -169,12 +169,22 @@ $x402 = $polypay->x402([
 $result = $x402->verifyAndSettle();
 
 if (!$result['paid']) {
-    $x402->sendRequirementAndExit();
+    $x402->sendRequirementAndExit($result['required']);
 }
 
 header('Content-Type: application/json');
+foreach ($result['responseHeaders'] as $name => $value) {
+    header($name . ': ' . $value);
+}
 echo json_encode(['data' => 'premium payload']);
 ```
+
+The helper emits x402 v2 by default. Set top-level `protocolVersion => 1` only during a controlled migration for legacy clients.
+The configured `resource` URL and `method` are used as the canonical public request identity behind reverse proxies. Pass an explicit URL to `verifyAndSettle()` only when the route resolves its canonical URL dynamically. A v2 helper reads only `PAYMENT-SIGNATURE`; a v1 helper reads only `X-PAYMENT`.
+
+Keep the matching Dashboard Resource enabled. Settlement rejects disabled or missing resources. Raw standard facilitator requests that omit method/resource context are accepted only when the enabled Resource resolves uniquely from merchant, network, asset, amount, and recipient.
+
+`paid` reports settlement state. `shouldFulfill` is true only for the request that wins the first confirmed payment-state transition; concurrent or later successful requests receive false. `fulfillmentKey` is the stable PolyPay payment ID. This flag is not a replacement for business idempotency: stateful endpoints must atomically persist their first business response under the unique key and return that stored response on retries. Read-only endpoints may continue serving the same protected representation when `paid` is true.
 
 ## API Reference
 
@@ -201,7 +211,8 @@ echo json_encode(['data' => 'premium payload']);
 | `payTo` | ✅ | Merchant EVM wallet address receiving USDC |
 | `resource` | ✅ | Canonical protected resource URL |
 | `price` | ✅* | Human-readable price, e.g. `$0.01` |
-| `maxAmountRequired` | ✅* | USDC base-unit amount; required if `price` is omitted |
+| `amount` | ✅* | x402 v2 USDC base-unit amount; required if `price` is omitted |
+| `maxAmountRequired` | ❌ | Legacy v1 alias for `amount` during migration |
 | `method` | ❌ | Protected HTTP method |
 | `description` | ❌ | Description shown to agents |
 | `mimeType` | ❌ | Resource MIME type |
@@ -210,8 +221,9 @@ echo json_encode(['data' => 'premium payload']);
 | `asset` | ❌ | Defaults to `USDC` |
 | `assetContract` | ❌ | Defaults to the network-specific Circle USDC contract |
 | `maxTimeoutSeconds` | ❌ | Defaults to `60` |
+| top-level `protocolVersion` | ❌ | Defaults to `2`; use `1` only for an explicit legacy migration |
 
-> x402 verification binds the payment to `resource` and `method`. If your application is behind a proxy, pass the canonical public URL to `verifyAndSettle($headers, $method, $url)` so it matches the URL advertised in the 402 requirement.
+> x402 verification binds the payment to `resource` and `method`. The configured public URL is used by default behind a proxy; pass the canonical URL to `verifyAndSettle($headers, $method, $url)` only for dynamically resolved routes.
 
 Supported standard x402 networks:
 
@@ -222,6 +234,8 @@ Supported standard x402 networks:
 | `eip155:137` | Polygon | `0x3c499c542cef5e3811e1192ce70d8cc03d5c3359` |
 
 Only standard EVM `exact` payments with Circle USDC `transferWithAuthorization` are supported. BSC, Tron, Solana, TON, and BTC are not part of this standard exact flow.
+
+The helper validates the scheme, network, matching Circle USDC contract, and EIP-3009 metadata during construction. Unsupported overrides fail before a payment challenge is sent to a wallet. If a settle request times out, retry the same signed payment proof; do not create a replacement authorization solely because the result is indeterminate.
 
 ### `createOrder` Parameters
 
@@ -397,7 +411,7 @@ $x402 = $polypay->x402([
         'resource' => 'https://api.example.com/premium-data',
         'method' => 'GET',
         'price' => '$0.01',
-        'maxAmountRequired' => '10000',
+        'amount' => '10000',
         'network' => 'eip155:8453',
         'asset' => 'USDC',
         'description' => '高级数据接口',
@@ -406,7 +420,7 @@ $x402 = $polypay->x402([
 
 $result = $x402->verifyAndSettle();
 if (!$result['paid']) {
-    $x402->sendRequirementAndExit();
+    $x402->sendRequirementAndExit($result['required']);
 }
 ```
 

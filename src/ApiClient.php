@@ -16,7 +16,7 @@ use PolyPay\Exception\ConfigException;
 class ApiClient
 {
     /** @var string SDK version */
-    const VERSION = '1.1.0';
+    const VERSION = '1.2.0';
 
     /** @var string Default API base URL */
     const DEFAULT_API_URL = 'https://api.polypay.ai';
