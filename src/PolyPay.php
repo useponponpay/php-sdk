@@ -302,6 +302,26 @@ class PolyPay
     }
 
     /**
+     * Create a strict Webhook v2 Ed25519 verifier.
+     *
+     * This verifier uses PolyPay public keys and never falls back to API Key verification.
+     *
+     * @param string                                 $expectedMerchantId Expected signed merchant ID
+     * @param string                                 $environment        Expected signed environment
+     * @param NonceStorageInterface|null             $nonceStorage       Custom replay-protection storage
+     * @param WebhookPublicKeyProviderInterface|null $keyProvider        Custom public key provider
+     * @return WebhookV2Handler
+     */
+    public function webhookV2(
+        string $expectedMerchantId,
+        string $environment = 'production',
+        ?NonceStorageInterface $nonceStorage = null,
+        ?WebhookPublicKeyProviderInterface $keyProvider = null
+    ): WebhookV2Handler {
+        return new WebhookV2Handler($expectedMerchantId, $environment, $nonceStorage, $keyProvider);
+    }
+
+    /**
      * Create an x402 helper for agent payments
      *
      * @param array $options x402 configuration

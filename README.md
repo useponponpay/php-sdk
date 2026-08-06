@@ -9,7 +9,7 @@ Accept cryptocurrency payments (USDT, USDC, etc.) on any PHP website via [PolyPa
 - 🔑 **Simple Setup** — Just provide your API Key
 - 🌐 **Framework Agnostic** — Works with any PHP project (Laravel, WordPress, custom, etc.)
 - 📦 **Zero Dependencies** — Pure PHP with cURL, no external packages required
-- 🔒 **Webhook Verification** — Built-in HMAC-SHA256 signature validation with replay protection
+- 🔒 **Webhook Verification** — Recommended Ed25519/JWKS v2 verification plus legacy HMAC v1 compatibility
 - 🤖 **Agent Payments** — x402 helper for API/resource payments by agents
 - 💰 **Multi-Currency** — Support USDT, USDC on Tron, Ethereum, BSC, Polygon, Solana
 
@@ -132,9 +132,11 @@ echo $order->txHash;   // Blockchain transaction hash
 
 ### 5. Handle Webhook Callback
 
+New integrations should use strict v2 verification. It validates PolyPay's Ed25519 signature, the signed merchant/environment audience, timestamp, and nonce without choosing an API Key.
+
 ```php
 try {
-    $data = $polypay->webhook()->handle();
+    $data = $polypay->webhookV2('MCH_YOUR_ID', 'production')->handle();
     $status = WebhookHandler::resolveStatus($data);
 
     if ($status === 'paid') {
@@ -149,6 +151,8 @@ try {
     echo $e->getMessage();
 }
 ```
+
+Existing integrations may continue using `$polypay->webhook()->handle()` for API Key HMAC v1. PolyPay sends both signatures during migration. A v2 verification failure never falls back to v1.
 
 ### 6. Protect an API with x402 Agent Payments
 
@@ -201,7 +205,8 @@ Keep the matching Dashboard Resource enabled. Settlement rejects disabled or mis
 | `getOrderByMchOrderId(string $mchOrderId)` | Query order by merchant order ID | `Order` |
 | `getMerchantDetail()` | Get merchant info | `Merchant` |
 | `activatePlugin(string $type)` | Activate plugin | `bool` |
-| `webhook(?NonceStorageInterface $nonce)` | Create webhook handler (shares API Key) | `WebhookHandler` |
+| `webhookV2(string $merchantId, string $environment, ?NonceStorageInterface $nonce, ?WebhookPublicKeyProviderInterface $keys)` | Create the recommended strict Ed25519/JWKS verifier | `WebhookV2Handler` |
+| `webhook(?NonceStorageInterface $nonce)` | Create the legacy API Key HMAC v1 verifier | `WebhookHandler` |
 | `x402(array $options)` | Create x402 agent payment helper | `X402` |
 
 ### `x402` Resource Options

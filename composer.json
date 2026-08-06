@@ -22,7 +22,10 @@
         }
     },
     "scripts": {
-        "test": "php tests/x402_test.php"
+        "test": "php tests/x402_test.php && php tests/webhook_v2_test.php"
+    },
+    "suggest": {
+        "ext-sodium": "Required for Webhook v2 Ed25519 verification"
     },
     "minimum-stability": "stable"
 }
